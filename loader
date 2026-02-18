@@ -1,1 +1,408 @@
+--  █████╗ ██████╗  ██████╗     ██████╗██╗     ██╗██╗███████╗███╗   ██╗████████╗
+-- ██╔══██╗██╔══██╗██╔════╝    ██╔════╝██║     ██║██║██╔════╝████╗  ██║╚══██╔══╝
+-- ███████║██████╔╝██║         ██║     ██║     ██║██║█████╗  ██╔██╗ ██║   ██║   
+-- ██╔══██║██╔══██╗██║         ██║     ██║     ██║██║██╔══╝  ██║╚██╗██║   ██║   
+-- ██║  ██║██║  ██║╚██████╗    ╚██████╗███████╗██║██║███████╗██║ ╚████║   ██║   
+-- ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝     ╚═════╝╚══════╝╚═╝╚═╝╚══════╝╚═╝  ╚═══╝   ╚═╝   
+-- made by @mqp6 on discord
 
+local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
+
+local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
+local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+
+local InputService = game:GetService('UserInputService')
+local GuiService = game:GetService('GuiService')
+local TweenService = game:GetService('TweenService')
+local CoreGui = game:GetService('CoreGui')
+
+local isMobile = (InputService.TouchEnabled and not InputService.MouseEnabled) or GuiService:IsTenFootInterface()
+
+local Window = Library:CreateWindow({
+    Title = 'Arc Client',
+    Center = not isMobile,
+    AutoShow = true,
+    TabPadding = 8,
+    MenuFadeTime = 0.2,
+    Size = isMobile and UDim2.new(0, 500, 0, 275) or nil,
+    Position = isMobile and UDim2.new(0, 10, 0.5, -137) or nil
+})
+
+local UIState = {
+    Visible = true,
+    Locked = false
+}
+
+local ControlFrame = Instance.new('Frame')
+ControlFrame.Name = 'ControlFrame'
+ControlFrame.Parent = Library.container
+ControlFrame.BackgroundTransparency = 1
+ControlFrame.Size = UDim2.new(0, 80, 0, 120)
+ControlFrame.Position = UDim2.new(0, 10, 0.5, -60)
+ControlFrame.ZIndex = 999
+
+local ToggleUIButton = Instance.new('TextButton')
+ToggleUIButton.Name = 'ToggleUIButton'
+ToggleUIButton.Parent = ControlFrame
+ToggleUIButton.Size = UDim2.new(0, 70, 0, 70)
+ToggleUIButton.Position = UDim2.new(0, 5, 0, 0)
+ToggleUIButton.Text = '👁️'
+ToggleUIButton.Font = Enum.Font.Code
+ToggleUIButton.TextSize = 32
+ToggleUIButton.BackgroundColor3 = Library.colors.accent
+ToggleUIButton.TextColor3 = Library.colors.text
+ToggleUIButton.BorderColor3 = Library.colors.accentDark
+ToggleUIButton.BorderMode = Enum.BorderMode.Inset
+ToggleUIButton.AutoButtonColor = false
+ToggleUIButton.ZIndex = 1000
+
+local LockUIButton = Instance.new('TextButton')
+LockUIButton.Name = 'LockUIButton'
+LockUIButton.Parent = ControlFrame
+LockUIButton.Size = UDim2.new(0, 70, 0, 70)
+LockUIButton.Position = UDim2.new(0, 5, 0, 75)
+LockUIButton.Text = '🔒'
+LockUIButton.Font = Enum.Font.Code
+LockUIButton.TextSize = 28
+LockUIButton.BackgroundColor3 = Library.colors.main
+LockUIButton.TextColor3 = Library.colors.text
+LockUIButton.BorderColor3 = Library.colors.accent
+LockUIButton.BorderMode = Enum.BorderMode.Inset
+LockUIButton.AutoButtonColor = false
+LockUIButton.ZIndex = 1000
+
+local Tabs = {
+    Main = Window:AddTab('Main'),
+    ['UI Settings'] = Window:AddTab('UI Settings')
+}
+
+local LeftGroupBox = Tabs.Main:AddLeftGroupbox('Control Center')
+
+LeftGroupBox:AddToggle('MasterToggle', {
+    Text = 'Master Control',
+    Default = true,
+    Tooltip = 'Global toggle for all features'
+})
+
+LeftGroupBox:AddSlider('MasterIntensity', {
+    Text = 'Intensity Level',
+    Default = 50,
+    Min = 0,
+    Max = 100,
+    Rounding = 0,
+    Suffix = '%'
+})
+
+LeftGroupBox:AddDropdown('MasterMode', {
+    Values = { 'Automatic', 'Manual', 'Adaptive', 'Custom' },
+    Default = 1,
+    Text = 'Operating Mode',
+    Tooltip = 'Select operational behavior'
+})
+
+LeftGroupBox:AddButton({
+    Text = 'Execute',
+    Func = function()
+        print('[Arc] Executed with:', Toggles.MasterToggle.Value, Options.MasterIntensity.Value, Options.MasterMode.Value)
+    end,
+    Tooltip = 'Execute current configuration'
+})
+
+LeftGroupBox:AddDivider()
+
+LeftGroupBox:AddToggle('FeatureToggle', {
+    Text = 'Feature Enabled',
+    Default = false,
+    Tooltip = 'Enable/disable main feature'
+})
+
+LeftGroupBox:AddSlider('FeatureSlider', {
+    Text = 'Feature Amount',
+    Default = 25,
+    Min = 0,
+    Max = 100,
+    Rounding = 1,
+    Suffix = 'x'
+})
+
+LeftGroupBox:AddInput('FeatureInput', {
+    Text = 'Feature Name',
+    Default = 'My Feature',
+    Placeholder = 'Enter feature name',
+    Tooltip = 'Custom feature identifier'
+})
+
+LeftGroupBox:AddDropdown('FeatureDropdown', {
+    Values = { 'Option A', 'Option B', 'Option C', 'Option D' },
+    Default = 1,
+    Text = 'Feature Options',
+    Tooltip = 'Select feature variant'
+})
+
+LeftGroupBox:AddLabel('Configuration Status: Ready')
+LeftGroupBox:AddLabel('Status: Online', true)
+
+local LeftGroupBox2 = Tabs.Main:AddLeftGroupbox('Advanced Settings')
+LeftGroupBox2:AddToggle('AdvancedToggle', { Text = 'Advanced Mode', Default = false })
+LeftGroupBox2:AddSlider('AdvancedSlider', { Text = 'Advanced Value', Default = 500, Min = 0, Max = 1000, Rounding = 0, Suffix = 'ms' })
+
+local TabBox = Tabs.Main:AddRightTabbox()
+local TabA = TabBox:AddTab('Tab A')
+local TabB = TabBox:AddTab('Tab B')
+
+TabA:AddToggle('TabAToggle', { Text = 'Tab A Control' })
+TabA:AddSlider('TabASlider', { Text = 'Tab A Value', Default = 50, Min = 0, Max = 100, Rounding = 0 })
+
+TabB:AddToggle('TabBToggle', { Text = 'Tab B Control' })
+TabB:AddDropdown('TabBDropdown', { Values = { 'Red', 'Blue', 'Green' }, Default = 1, Text = 'Tab B Color' })
+
+local RightGroupbox = Tabs.Main:AddRightGroupbox('Dependency Example')
+RightGroupbox:AddToggle('DependencyToggle', { Text = 'Enable Sub-Options' })
+
+local Depbox = RightGroupbox:AddDependencyBox()
+Depbox:AddToggle('SubToggle', { Text = 'Sub-Option Toggle' })
+Depbox:AddSlider('SubSlider', { Text = 'Sub-Option Value', Default = 75, Min = 0, Max = 100, Rounding = 0 })
+
+Depbox:SetupDependencies({
+    { Toggles.DependencyToggle, true }
+})
+
+local SubDepbox = Depbox:AddDependencyBox()
+SubDepbox:AddDropdown('SubDropdown', { Values = { 'X', 'Y', 'Z' }, Default = 1, Text = 'Sub Selection' })
+SubDepbox:SetupDependencies({
+    { Toggles.SubToggle, true }
+})
+
+local UIBox = Tabs['UI Settings']:AddLeftGroupbox('Interface Controls')
+
+UIBox:AddToggle('ControlButtonsToggle', {
+    Text = 'Show Control Buttons',
+    Default = true,
+    Tooltip = 'Toggle left side control buttons'
+})
+
+UIBox:AddToggle('WindowDraggable', {
+    Text = 'Window Draggable',
+    Default = true,
+    Tooltip = 'Enable/disable window dragging'
+})
+
+UIBox:AddSlider('WindowTransparency', {
+    Text = 'Window Transparency',
+    Default = 0,
+    Min = 0,
+    Max = 0.8,
+    Rounding = 2
+})
+
+UIBox:AddColorPicker('AccentColorPicker', {
+    Default = Library.colors.accent,
+    Title = 'Accent Color',
+    Transparency = 0
+})
+
+UIBox:AddKeyPicker('MenuKeybind', {
+    Default = 'End',
+    Mode = 'Toggle',
+    Text = 'Menu Toggle',
+    NoUI = false,
+    SyncToggleState = true
+})
+
+Library.ToggleKeybind = Options.MenuKeybind
+
+UIBox:AddDivider()
+
+UIBox:AddLabel('UI State Monitor')
+UIBox:AddLabel('Position: ' .. tostring(Window.Holder.Position))
+UIBox:AddLabel('Size: 500x275', true)
+
+UIBox:AddButton({
+    Text = 'Reset UI Position',
+    Func = function()
+        Window.Holder.Position = UDim2.new(0.5, -250, 0.5, -137)
+    end,
+    Tooltip = 'Reset window to center'
+})
+
+UIBox:AddButton({
+    Text = 'Toggle UI',
+    Func = function()
+        ToggleUI(not UIState.Visible)
+    end,
+    DoubleClick = true,
+    Tooltip = 'Double-click to toggle UI'
+})
+
+local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu Options')
+MenuGroup:AddButton('Unload', function() Library:Unload() end)
+MenuGroup:AddLabel('Menu Keybind'):AddKeyPicker('MenuKeybind2', { Default = 'End', NoUI = true, Text = 'Menu Keybind' })
+
+local ConfigGroup = Tabs['UI Settings']:AddRightGroupbox('Configuration')
+
+ConfigGroup:AddToggle('AutoSaveConfig', {
+    Text = 'Auto-Save Configuration',
+    Default = true,
+    Tooltip = 'Automatically save settings'
+})
+
+ConfigGroup:AddDropdown('ConfigSlot', {
+    Values = { 'Slot 1', 'Slot 2', 'Slot 3', 'Slot 4', 'Slot 5' },
+    Default = 1,
+    Text = 'Configuration Slot',
+    Tooltip = 'Select save slot'
+})
+
+ConfigGroup:AddButton({
+    Text = 'Save Configuration',
+    Func = function()
+        SaveManager:Save(Options.ConfigSlot.Value)
+        print('[Arc] Saved to', Options.ConfigSlot.Value)
+    end,
+    Tooltip = 'Save current settings'
+})
+
+ConfigGroup:AddButton({
+    Text = 'Load Configuration',
+    Func = function()
+        SaveManager:Load(Options.ConfigSlot.Value)
+        print('[Arc] Loaded from', Options.ConfigSlot.Value)
+    end,
+    Tooltip = 'Load selected configuration'
+})
+
+ConfigGroup:AddButton({
+    Text = 'Reset to Defaults',
+    Func = function()
+        SaveManager:Reset()
+        print('[Arc] Reset to defaults')
+    end,
+    DoubleClick = true,
+    Tooltip = 'Double-click to reset'
+})
+
+Library:SetWatermarkVisibility(true)
+
+local FrameTimer = tick()
+local FrameCounter = 0
+local FPS = 60
+
+local WatermarkConnection = game:GetService('RunService').RenderStepped:Connect(function()
+    FrameCounter = FrameCounter + 1
+    if (tick() - FrameTimer) >= 1 then
+        FPS = FrameCounter
+        FrameTimer = tick()
+        FrameCounter = 0
+    end
+    Library:SetWatermark(('Arc Client | %s fps | %s ms'):format(
+        math.floor(FPS),
+        math.floor(game:GetService('Stats').Network.ServerStatsItem['Data Ping']:GetValue())
+    ))
+end)
+
+Library:OnUnload(function()
+    WatermarkConnection:Disconnect()
+    ControlFrame:Destroy()
+    print('[Arc] Unloaded')
+end)
+
+local function ToggleUI(visible)
+    UIState.Visible = visible
+    Window.Holder.Visible = visible
+    ToggleUIButton.Text = visible and '👁️' or '◀'
+end
+
+local function SetUILocked(locked)
+    UIState.Locked = locked
+    LockUIButton.Text = locked and '🔓' or '🔒'
+    LockUIButton.BackgroundColor3 = locked and Library.colors.accent or Library.colors.main
+    LockUIButton.BorderColor3 = locked and Library.colors.accentDark or Library.colors.accent
+    Window:SetDraggable(not locked)
+end
+
+ToggleUIButton.MouseButton1Click:Connect(function()
+    ToggleUI(not UIState.Visible)
+end)
+
+LockUIButton.MouseButton1Click:Connect(function()
+    SetUILocked(not UIState.Locked)
+end)
+
+if isMobile then
+    local touchStart, touchStartTime
+    
+    InputService.TouchStarted:Connect(function(touch, processed)
+        if processed then return end
+        touchStart = touch.Position
+        touchStartTime = tick()
+    end)
+    
+    InputService.TouchEnded:Connect(function(touch, processed)
+        if processed or not touchStart then return end
+        
+        local touchDuration = tick() - touchStartTime
+        local touchDistance = (touch.Position - touchStart).Magnitude
+        
+        if touchDuration < 0.3 and touchDistance < 20 then
+            local togglePos = ToggleUIButton.AbsolutePosition
+            local toggleSize = ToggleUIButton.AbsoluteSize
+            local lockPos = LockUIButton.AbsolutePosition
+            local lockSize = LockUIButton.AbsoluteSize
+            
+            if touch.Position.X >= togglePos.X and touch.Position.X <= togglePos.X + toggleSize.X and
+               touch.Position.Y >= togglePos.Y and touch.Position.Y <= togglePos.Y + toggleSize.Y then
+                ToggleUI(not UIState.Visible)
+            elseif touch.Position.X >= lockPos.X and touch.Position.X <= lockPos.X + lockSize.X and
+                   touch.Position.Y >= lockPos.Y and touch.Position.Y <= lockPos.Y + lockSize.Y then
+                SetUILocked(not UIState.Locked)
+            end
+        end
+        
+        touchStart = nil
+        touchStartTime = nil
+    end)
+end
+
+Toggles.ControlButtonsToggle:OnChanged(function()
+    ControlFrame.Visible = Toggles.ControlButtonsToggle.Value
+end)
+
+Toggles.WindowDraggable:OnChanged(function()
+    if not UIState.Locked then
+        Window:SetDraggable(Toggles.WindowDraggable.Value)
+    end
+end)
+
+Options.WindowTransparency:OnChanged(function()
+    Window.Holder.BackgroundTransparency = Options.WindowTransparency.Value
+end)
+
+Options.AccentColorPicker:OnChanged(function()
+    Library.colors.accent = Options.AccentColorPicker.Value
+    Library.colors.accentDark = Library:darken(Library.colors.accent)
+    Library:updateColors()
+    ToggleUIButton.BackgroundColor3 = Library.colors.accent
+    ToggleUIButton.BorderColor3 = Library.colors.accentDark
+    if UIState.Locked then
+        LockUIButton.BackgroundColor3 = Library.colors.accent
+        LockUIButton.BorderColor3 = Library.colors.accentDark
+    end
+end)
+
+ThemeManager:SetLibrary(Library)
+SaveManager:SetLibrary(Library)
+
+ThemeManager:SetFolder('ArcClient')
+SaveManager:SetFolder('ArcClient')
+
+ThemeManager:ApplyToTab(Tabs['UI Settings'])
+SaveManager:BuildConfigSection(Tabs['UI Settings'])
+
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes({ 'MenuKeybind', 'MenuKeybind2', 'ConfigSlot', 'AutoSaveConfig' })
+
+SaveManager:LoadAutoloadConfig()
+
+SetUILocked(false)
+ToggleUI(true)
